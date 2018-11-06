@@ -1,2 +1,2 @@
 # Lab3A-NaturalLanguageProcessing
-This repository is to be use for lab3
+This repository is to be used for lab3
