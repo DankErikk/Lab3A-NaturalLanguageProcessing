@@ -19,17 +19,22 @@ from RedBlackTree import RBTNode
 # This creates an avl tree from a file based off the glove files
 def createAVLTree(file_name):
     avlTree = AVLTree()
-    with open(file_name) as file:
-        alphabet = list(string.ascii_letters)
-        for line in file:
-            array = line.split(" ")
-            word = array[0]
-            if alphabet.__contains__(word[0]):
-                numbers = []
-                for num in array[1:]:
-                    numbers.append(float(num))
-                wordNode = Node(word, numbers)
-                avlTree.insert(wordNode)
+    try:
+
+        with open(file_name) as file:
+            alphabet = list(string.ascii_letters)
+            for line in file:
+                array = line.split(" ")
+                word = array[0]
+                if alphabet.__contains__(word[0]):
+                    numbers = []
+                    for num in array[1:]:
+                        numbers.append(float(num))
+                    wordNode = Node(word, numbers)
+                    avlTree.insert(wordNode)
+    except FileNotFoundError:
+        print("File not found...")
+        exit()
     return avlTree
 
 # This creates a RedBlack tree from a file based off the glove files
@@ -170,7 +175,7 @@ def display_options():
     while True:
         try:
             user_ans = int(input("Please enter 1 trough 5...\n"))
-        except ValueError or TypeError:
+        except TypeError:
             print("Sorry that is not a number...\n")
             continue
         if user_ans<1 and user_ans>4:
@@ -191,21 +196,23 @@ def compute_tree_height(node):
     left_height = compute_tree_height(node.left)
     right_height = compute_tree_height(node.right)
     return max(left_height,right_height)+1
-def generate_text_file_from_tree(node):
+def generate_text_file_from_tree(node, word_file):
     temp = node
     if temp is None:
         return
-    generate_text_file_from_tree(temp.left)
+    generate_text_file_from_tree(temp.left, word_file)
     word_file.write(temp.key + "\n")
-    generate_text_file_from_tree(temp.right)
-def generate_text_file_from_tree_depth(node, depth):
+    generate_text_file_from_tree(temp.right, word_file)
+def generate_text_file_from_tree_depth(node, depth, word_file_depth):
     temp = node
+    if depth <0:
+        return
     if temp is None:
         return
-    generate_text_file_from_tree_depth(temp.left, depth-1)
+    generate_text_file_from_tree_depth(temp.left, depth-1, word_file_depth)
     if depth == 0:
-        word_file.write(temp.key + "\n")
-    generate_text_file_from_tree_depth(temp.right, depth-1)
+        word_file_depth.write(temp.key + "\n")
+    generate_text_file_from_tree_depth(temp.right, depth-1, word_file_depth)
 
 def main():
 
@@ -240,9 +247,13 @@ def main():
             height = compute_tree_height(temp.root)
             print("The height is " + str(height))
         if user_ans == 3:
-            generate_text_file_from_tree(temp.root)
+            file_name_word = "word_file.txt"
+            word_file = open(file_name_word, "w+")
+            generate_text_file_from_tree(temp.root, word_file)
             print("Word file generated: word_file.txt (Will show when program ends)")
         if user_ans == 4:
+            file_name_word_depth = "word_file_depth.txt"
+            word_file_depth = open(file_name_word_depth, "w+")
             while True:
                 try:
                     depth = int(input("Enter desired depth.\n"))
@@ -250,9 +261,9 @@ def main():
                         print("Depth too low.")
                         continue
                     else:
-                        generate_text_file_from_tree_depth(temp.root, depth)
+                        generate_text_file_from_tree_depth(temp.root, depth, word_file_depth)
                         print("Word file generate: word_file_depth.txt (Will show when program ends)")
-                        break;
+                        break
                 except ValueError:
                     print("Please enter a number.")
                     continue
@@ -262,10 +273,7 @@ def main():
         if user_ans == 5:
             print("Thank You!")
             exit()
-            
-    
 
-word_file = open("word_file.txt", "w+")
-word_file_depth = open("word_file_depth.txt", "w+")
+            
 file_name = "test.txt"
 main()
