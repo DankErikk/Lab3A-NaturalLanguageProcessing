@@ -10,6 +10,7 @@
 
 import string
 import random
+import math
 from AVLTree import AVLTree
 from AVLTree import Node
 from RedBlackTree import RedBlackTree
@@ -74,6 +75,7 @@ def generate_text_file(file_name):
             if alphabet.__contains__(word[0]) and counter<limit:
                 word_pairs_file.write(word + " " + str(get_Random_Word(file_name))+ "\n")
                 counter+=1
+    return "word_pairs.txt"
 
 # This method will return a random word in the file
 def get_Random_Word(file_name):
@@ -100,10 +102,7 @@ def get_num_lines(file_name):
             counter +=1
     return counter
 
-def main():
-    file_name = "test.txt"
-    # Read the file, store each word and its embedding into an avl or redblack tree.
-    # Only use words in the text file
+def ask_user_for_input():
     print("Would you like to use a AVL[1] or Red Black Tree[2]?")
     while True:
             try:
@@ -115,24 +114,158 @@ def main():
                 continue
             else:
                 break
+    return user_ans
+
+def calculate_similarity_from_file(file_name, user_tree):
+    with open(file_name) as file:
+        for line in file:
+            temp_tree = user_tree
+            words = line.split(" ")
+
+            first_word = words[0]
+            second_word = words[1]
+            similarity = 0
+            similarity = calculate_similarity_from_pair(first_word, temp_tree)
+            print("Similarity between " + str(first_word) + " and " + str(second_word) + " is " + str(similarity))
+    
+def calculate_similarity_from_pair(first_word, user_tree):
+    # First look for node in binary tree
+    temp = user_tree
+    first_word_node = temp.search(first_word)
+
+    temp = user_tree
+    while True:
+        try:
+            second_word_node = temp.search(get_Random_Word(file_name))
+            break
+        except TypeError:
+            continue
+
+    first_word_embedding = first_word_node.embedding
+    second_word_embedding = second_word_node.embedding
+    
+    # Check that both nodes contain embeddings
+    if first_word_embedding is not None and second_word_embedding is not None:
+        # Variable used for top part of fraction
+        top = 0
+        # Bottom variables for bottom part of fraction
+        bottomA = 0
+        bottomB = 0
+        embedding_length = len(first_word_node.embedding)
+        for i in range(embedding_length):
+            top = top + (first_word_node.embedding[i] * second_word_node.embedding[i])
+            bottomA = bottomA + first_word_node.embedding[i]**2
+            bottomB = bottomB + second_word_node.embedding[i]**2
+        # Return the similarity
+        return (top / (math.sqrt(bottomA) * math.sqrt(bottomB)))
+
+def display_options():
+    print("Select an option...")
+    print("[1]: Compute the number of nodes in the tree.")
+    print("[2]: Compute the height of the tree.")
+    print("[3]: Generate file that contains words in the tree.")
+    print("[4]: Given depth 'd', generate file with that depth.")
+    print("[5]: Exit")
+
+    while True:
+        try:
+            user_ans = int(input("Please enter 1 trough 5...\n"))
+        except ValueError or TypeError:
+            print("Sorry that is not a number...\n")
+            continue
+        if user_ans<1 and user_ans>4:
+            continue
+        else:
+            break
+    
+    return user_ans
+
+def compute_amount_nodes(node):
+    if node is None:
+        return 0
+    return 1 + compute_amount_nodes(node.left) + compute_amount_nodes(node.right)
+
+def compute_tree_height(node):
+    if node is None:
+        return -1
+    left_height = compute_tree_height(node.left)
+    right_height = compute_tree_height(node.right)
+    return max(left_height,right_height)+1
+def generate_text_file_from_tree(node):
+    temp = node
+    if temp is None:
+        return
+    generate_text_file_from_tree(temp.left)
+    word_file.write(temp.key + "\n")
+    generate_text_file_from_tree(temp.right)
+def generate_text_file_from_tree_depth(node, depth):
+    temp = node
+    if temp is None:
+        return
+    generate_text_file_from_tree_depth(temp.left, depth-1)
+    if depth == 0:
+        word_file.write(temp.key + "\n")
+    generate_text_file_from_tree_depth(temp.right, depth-1)
+
+def main():
+
+    # Read the file, store each word and its embedding into an avl or redblack tree.
+    # Only use words in the text file
+    user_ans = ask_user_for_input()
+    
     if user_ans == 1:
         print("You chose 1!")
-        userTree = createAVLTree(file_name)
+        user_tree = createAVLTree(file_name)
     if user_ans == 2:
         print("Your chose 2!")
-        userTree = createRedBlackTree(file_name)
-    # Now we have the tree as userTree
-    
-    # Read another file containing pairs of words (two per line) and for every pair of words
-    # find similarity of words using word pairs text file
-     
-
-    # Generate text file with word pairs
-    generate_text_file(file_name)
-
-    # TODO: Finish this fucking assignment cuz tis already late af
-    # TODO: implement formula and rest of assignment
-    
+        user_tree = createRedBlackTree(file_name)
+    # Now we have the tree as user_tree
 
     
+    # Generate text files that contains words in the tree
+    word_pairs_file_name = generate_text_file(file_name)
+
+    # Compare word similarities using pairs file
+    calculate_similarity_from_file(word_pairs_file_name, user_tree)
+
+    while True:
+        temp = user_tree
+        # Display Options
+        user_ans = display_options()
+
+        if user_ans == 1:
+            amount = compute_amount_nodes(temp.root)
+            print("There are " + str(amount) + " nodes")
+        if user_ans == 2:
+            height = compute_tree_height(temp.root)
+            print("The height is " + str(height))
+        if user_ans == 3:
+            generate_text_file_from_tree(temp.root)
+            print("Word file generated: word_file.txt (Will show when program ends)")
+        if user_ans == 4:
+            while True:
+                try:
+                    depth = int(input("Enter desired depth.\n"))
+                    if depth > compute_tree_height(temp.root):
+                        print("Depth too low.")
+                        continue
+                    else:
+                        generate_text_file_from_tree_depth(temp.root, depth)
+                        print("Word file generate: word_file_depth.txt (Will show when program ends)")
+                        break;
+                except ValueError:
+                    print("Please enter a number.")
+                    continue
+                except TypeError:
+                    print("Please enter a number.")
+                    continue
+        if user_ans == 5:
+            print("Thank You!")
+            exit()
+            
+    
+
+word_file = open("word_file.txt", "w+")
+word_file_depth = open("word_file_depth.txt", "w+")
+file_name = "test.txt"
 main()

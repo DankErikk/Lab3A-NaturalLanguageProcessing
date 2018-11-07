@@ -192,6 +192,9 @@ class AVLTree:
         # matching key if it exists in the tree, or None if there is no
         # matching key in the tree.
     def search(self, key):
+        if self.root is None:
+            print("Not found....")
+            return self.root
         current_node = self.root
         while current_node is not None:
             # Compare the current node's key with the target key.

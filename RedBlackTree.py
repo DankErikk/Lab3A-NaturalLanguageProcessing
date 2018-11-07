@@ -106,6 +106,16 @@ class RedBlackTree:
             self.root.parent = None
         node.left.set_child("right", node)
         node.set_child("left", left_right_child)
+    def search(self, key):
+        current_node = self.root
+        while current_node is not None:
+            # Compare the current node's key with the target key.
+            # If it is a match, return the current key; otherwise go
+            # either to the left or right, depending on whether the 
+            # current node's key is smaller or larger than the target key.
+            if current_node.key == key: return current_node
+            elif current_node.key < key: current_node = current_node.right
+            else: current_node = current_node.left
 
 class RBTNode:
 
