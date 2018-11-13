@@ -214,6 +214,7 @@ class AVLTree:
             return False
         else:
             return self.remove_node(node)
+    
 
 class Node:
 
@@ -297,3 +298,5 @@ class Node:
         # If neither of the above cases applied, then the new child
         # could not be attached to this node.
         return False
+    def get_embedding(self):
+        return self.embedding

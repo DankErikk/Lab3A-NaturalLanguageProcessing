@@ -1,4 +1,4 @@
-# Erik Rivera
+ # Erik Rivera
 # Lab3A
 # CS2302 TR @ 10:30-11:50 
 # Professor Aguirre, Diego
@@ -21,7 +21,7 @@ def createAVLTree(file_name):
     avlTree = AVLTree()
     try:
 
-        with open(file_name) as file:
+        with open(file_name , encoding = "utf8") as file:
             alphabet = list(string.ascii_letters)
             for line in file:
                 array = line.split(" ")
@@ -40,7 +40,7 @@ def createAVLTree(file_name):
 # This creates a RedBlack tree from a file based off the glove files
 def createRedBlackTree(file_name):
     redBlackTree = RedBlackTree()
-    with open(file_name) as file:
+    with open(file_name, encoding = "utf8") as file:
         alphabet = list(string.ascii_letters)
         for line in file:
             array = line.split(" ")
@@ -62,25 +62,6 @@ def __printTree__(root):
     print(temp.key)
     __printTree__(temp.right)
 
-# This will generate a text file and call it word_pairs.txt
-def generate_text_file(file_name):
-    limit = 100
-    counter = 0
-    word_pairs_file = open("word_pairs.txt", "w+")
-    with open(file_name) as file:
-        alphabet = list(string.ascii_letters)
-        for line in file:
-            # Check that current line starts with a word
-            array = line.split(" ")
-            word = array[0]
-            # If the element begins with a character in the alphabet
-            # then it is a word
-            
-            # Set limit to chose how many word pairs to write
-            if alphabet.__contains__(word[0]) and counter<limit:
-                word_pairs_file.write(word + " " + str(get_Random_Word(file_name))+ "\n")
-                counter+=1
-    return "word_pairs.txt"
 
 # This method will return a random word in the file
 def get_Random_Word(file_name):
@@ -124,30 +105,24 @@ def ask_user_for_input():
 def calculate_similarity_from_file(file_name, user_tree):
     with open(file_name) as file:
         for line in file:
+            # Split the words into an array of length 2
             temp_tree = user_tree
             words = line.split(" ")
 
             first_word = words[0]
             second_word = words[1]
             similarity = 0
-            similarity = calculate_similarity_from_pair(first_word, temp_tree)
+            similarity = calculate_similarity_from_pair(first_word, second_word, temp_tree)
             print("Similarity between " + str(first_word) + " and " + str(second_word) + " is " + str(similarity))
     
-def calculate_similarity_from_pair(first_word, user_tree):
+def calculate_similarity_from_pair(first_word, second_word, user_tree):
     # First look for node in binary tree
     temp = user_tree
     first_word_node = temp.search(first_word)
+    second_word_node = user_tree.search(second_word)
 
-    temp = user_tree
-    while True:
-        try:
-            second_word_node = temp.search(get_Random_Word(file_name))
-            break
-        except TypeError:
-            continue
-
-    first_word_embedding = first_word_node.embedding
-    second_word_embedding = second_word_node.embedding
+    second_word_embedding = second_word_node.get_embedding()
+    first_word_embedding = first_word_node.get_embedding()
     
     # Check that both nodes contain embeddings
     if first_word_embedding is not None and second_word_embedding is not None:
@@ -156,9 +131,11 @@ def calculate_similarity_from_pair(first_word, user_tree):
         # Bottom variables for bottom part of fraction
         bottomA = 0
         bottomB = 0
-        embedding_length = len(first_word_node.embedding)
+        embedding_length = len(first_word_embedding)
         for i in range(embedding_length):
+            # Top will be the sum of the products
             top = top + (first_word_node.embedding[i] * second_word_node.embedding[i])
+
             bottomA = bottomA + first_word_node.embedding[i]**2
             bottomB = bottomB + second_word_node.embedding[i]**2
         # Return the similarity
@@ -227,10 +204,9 @@ def main():
         print("Your chose 2!")
         user_tree = createRedBlackTree(file_name)
     # Now we have the tree as user_tree
-
     
-    # Generate text files that contains words in the tree
-    word_pairs_file_name = generate_text_file(file_name)
+    # Set the variable that holds the word pairs to test
+    word_pairs_file_name = "word_pairs.txt"
 
     # Compare word similarities using pairs file
     calculate_similarity_from_file(word_pairs_file_name, user_tree)
@@ -248,12 +224,12 @@ def main():
             print("The height is " + str(height))
         if user_ans == 3:
             file_name_word = "word_file.txt"
-            word_file = open(file_name_word, "w+")
+            word_file = open(file_name_word,"w+",encoding =  "utf8")
             generate_text_file_from_tree(temp.root, word_file)
             print("Word file generated: word_file.txt (Will show when program ends)")
         if user_ans == 4:
             file_name_word_depth = "word_file_depth.txt"
-            word_file_depth = open(file_name_word_depth, "w+")
+            word_file_depth = open(file_name_word_depth, "w+",  encoding =  "utf8")
             while True:
                 try:
                     depth = int(input("Enter desired depth.\n"))
@@ -275,5 +251,5 @@ def main():
             exit()
 
             
-file_name = "test.txt"
+file_name = "glove.6b.50d.txt"
 main()

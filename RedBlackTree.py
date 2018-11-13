@@ -209,3 +209,5 @@ class RBTNode:
             child.parent = self
 
         return True
+    def get_embedding(self):
+        return self.embedding
