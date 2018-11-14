@@ -18,6 +18,7 @@ from RedBlackTree import RBTNode
 
 # This creates an avl tree from a file based off the glove files
 def createAVLTree(file_name):
+    print("Creating AVL Tree...")
     avlTree = AVLTree()
     try:
 
@@ -39,6 +40,7 @@ def createAVLTree(file_name):
 
 # This creates a RedBlack tree from a file based off the glove files
 def createRedBlackTree(file_name):
+    print("Creating RedBlack Tree....")
     redBlackTree = RedBlackTree()
     with open(file_name, encoding = "utf8") as file:
         alphabet = list(string.ascii_letters)
@@ -226,7 +228,7 @@ def main():
             file_name_word = "word_file.txt"
             word_file = open(file_name_word,"w+",encoding =  "utf8")
             generate_text_file_from_tree(temp.root, word_file)
-            print("Word file generated: word_file.txt (Will show when program ends)")
+            print("Word file generated: word_file.txt")
         if user_ans == 4:
             file_name_word_depth = "word_file_depth.txt"
             word_file_depth = open(file_name_word_depth, "w+",  encoding =  "utf8")
@@ -238,7 +240,7 @@ def main():
                         continue
                     else:
                         generate_text_file_from_tree_depth(temp.root, depth, word_file_depth)
-                        print("Word file generate: word_file_depth.txt (Will show when program ends)")
+                        print("Word file generate: word_file_depth.txt")
                         break
                 except ValueError:
                     print("Please enter a number.")
